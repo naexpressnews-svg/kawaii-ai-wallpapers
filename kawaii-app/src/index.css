@@ -1,0 +1,34 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Quicksand:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Quicksand", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Nunito", ui-sans-serif, system-ui, sans-serif;
+  
+  --color-pastel-pink: #FFD1DC;
+  --color-pastel-purple: #E6E6FA;
+  --color-pastel-blue: #AEC6CF;
+  --color-pastel-green: #BFFCC6;
+  --color-pastel-yellow: #FDFD96;
+}
+
+body {
+  background-color: #fdfbfb;
+  color: #4a4a4a;
+}
+
+/* Custom scrollbar for a cuter look */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: #FFD1DC;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #ffb6c1;
+}

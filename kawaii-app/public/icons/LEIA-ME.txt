@@ -1,0 +1,26 @@
+📌 ÍCONES NECESSÁRIOS PARA A PLAY STORE
+========================================
+
+Precisas de criar 2 ficheiros PNG nesta pasta:
+
+  → icon-192.png  (192 x 192 pixels)
+  → icon-512.png  (512 x 512 pixels)
+
+COMO CRIAR GRÁTIS:
+------------------
+1. Vai a https://www.canva.com (grátis)
+2. Cria um design quadrado 512x512
+3. Usa fundo rosa pastel (#fbcfe8) com o ícone ✨ (Sparkles) branco ao centro
+4. Exporta como PNG em 512x512 → guarda como icon-512.png
+5. Reduz para 192x192 → guarda como icon-192.png
+
+OU usa este gerador automático:
+→ https://realfavicongenerator.net
+(faz upload de uma imagem e ele gera todos os tamanhos)
+
+PASTA screenshots/
+------------------
+Para a Play Store também precisas de pelo menos 1 screenshot do app:
+- Tamanho: 1080 x 1920 pixels (vertical)
+- Guarda como: public/screenshots/screen1.png
+- Podes tirar screenshot do app no telemóvel ou emulador
