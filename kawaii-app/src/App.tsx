@@ -181,16 +181,8 @@ export default function App() {
                 <Key className="w-8 h-8 text-pink-500" />
               </div>
               <h2 className="text-2xl font-bold text-center text-gray-800 mb-2">Gemini API Key</h2>
-              <p className="text-gray-500 text-center text-sm mb-6">
-                Precisas de uma chave gratuita do Google para gerar imagens com IA.{' '}
-                <a
-                  href="https://aistudio.google.com/app/apikey"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-pink-500 font-semibold hover:underline"
-                >
-                  Obtém a tua chave aqui →
-                </a>
+             <p className="text-gray-500 text-center text-sm mb-6">
+                Precisas de uma chave gratuita do Google para gerar imagens com IA.
               </p>
 
               {apiKey && (
