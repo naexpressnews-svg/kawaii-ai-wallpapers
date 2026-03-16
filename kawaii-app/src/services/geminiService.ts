@@ -3,19 +3,17 @@ export async function generateKawaiiWallpaper(prompt: string): Promise<string> {
     const fullPrompt = `kawaii aesthetic wallpaper, ${prompt}, pastel colors, cute, dreamy, soft lighting, high quality, anime style, mobile wallpaper`;
     const encodedPrompt = encodeURIComponent(fullPrompt);
     const seed = Math.floor(Math.random() * 999999);
-    
-    // Usa diretamente o URL da imagem sem fetch
-    const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=576&height=1024&seed=${seed}&nologo=true&enhance=true`;
+
+    // URL correto do Pollinations AI 2026
+    const imageUrl = `https://pollinations.ai/p/${encodedPrompt}?width=576&height=1024&seed=${seed}&nologo=true&enhance=true&model=flux`;
 
     // Testa se a imagem carrega
     await new Promise<void>((resolve, reject) => {
       const img = new Image();
-      img.crossOrigin = 'anonymous';
       img.onload = () => resolve();
       img.onerror = () => reject(new Error('Imagem não carregou'));
       img.src = imageUrl;
-      // Timeout de 30 segundos
-      setTimeout(() => reject(new Error('Timeout')), 30000);
+      setTimeout(() => reject(new Error('Timeout')), 60000);
     });
 
     return imageUrl;
