@@ -2,15 +2,14 @@ import { GoogleGenAI } from '@google/genai';
 
 export async function generateKawaiiWallpaper(prompt: string): Promise<string> {
   try {
-    // Get API key from localStorage (saved by the user in the app)
     const apiKey = localStorage.getItem('kawaii_gemini_api_key');
     if (!apiKey) {
       throw new Error('NO_API_KEY');
     }
     const ai = new GoogleGenAI({ apiKey });
-    
+
     const response = await ai.models.generateContent({
-      model: 'gemini-3.1-flash-image-preview',
+      model: 'gemini-2.0-flash-preview-image-generation',
       contents: {
         parts: [
           {
@@ -19,10 +18,7 @@ export async function generateKawaiiWallpaper(prompt: string): Promise<string> {
         ],
       },
       config: {
-        imageConfig: {
-          aspectRatio: '9:16',
-          imageSize: '1K',
-        },
+        responseModalities: ['TEXT', 'IMAGE'],
       },
     });
 
