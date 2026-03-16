@@ -1,35 +1,29 @@
-import { GoogleGenAI } from '@google/genai';
-
 export async function generateKawaiiWallpaper(prompt: string): Promise<string> {
   try {
-    const apiKey = localStorage.getItem('kawaii_gemini_api_key');
-    if (!apiKey) {
-      throw new Error('NO_API_KEY');
-    }
-    const ai = new GoogleGenAI({ apiKey });
+    const fullPrompt = `kawaii aesthetic wallpaper, ${prompt}, pastel colors, cute, dreamy, soft lighting, high quality, anime style, mobile wallpaper`;
+    const encodedPrompt = encodeURIComponent(fullPrompt);
+    
+    // Pollinations AI — 100% gratuito, sem chave, sem billing
+    const width = 576;
+    const height = 1024;
+    const seed = Math.floor(Math.random() * 999999);
+    const url = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&seed=${seed}&nologo=true&enhance=true`;
 
-    const response = await ai.models.generateImages({
-      model: 'imagen-3.0-generate-002',
-      prompt: `Kawaii aesthetic wallpaper, ${prompt}, pastel colors, cute, dreamy, soft lighting, high quality, 4k resolution, mobile wallpaper portrait`,
-      config: {
-        numberOfImages: 1,
-        aspectRatio: '9:16',
-      },
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Falha ao gerar imagem');
+    }
+
+    const blob = await response.blob();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
     });
 
-    const image = response.generatedImages?.[0];
-    if (image?.image?.imageBytes) {
-      return `data:image/png;base64,${image.image.imageBytes}`;
-    }
-
-    throw new Error('No image data found in response');
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error generating wallpaper:', error);
-    // Só redireciona para API Key se for mesmo erro de chave
-    if (error?.message === 'NO_API_KEY' || error?.status === 401 || error?.status === 403) {
-      throw new Error('NO_API_KEY');
-    }
-    // Outros erros mostram mensagem normal
-    throw new Error(error?.message || 'Falha ao gerar imagem. Verifica se tens billing ativado no Google Cloud.');
+    throw error;
   }
 }
