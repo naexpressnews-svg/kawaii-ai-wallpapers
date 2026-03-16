@@ -1,49 +1,51 @@
-export async function generateKawaiiWallpaper(prompt: string): Promise<string> {
+export const config = { runtime: 'edge' };
+
+export default async function handler(req: Request) {
+  if (req.method !== 'POST') {
+    return new Response('Method not allowed', { status: 405 });
+  }
+
   try {
+    const { prompt } = await req.json();
     const fullPrompt = `kawaii aesthetic wallpaper, ${prompt}, pastel colors, cute, dreamy, soft lighting, high quality, anime style, mobile wallpaper`;
 
-    // Stable Horde — 100% gratuito, sem chave
-    const generateResponse = await fetch('https://stablehorde.net/api/v2/generate/async', {
+    const generateRes = await fetch('https://stablehorde.net/api/v2/generate/async', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'apikey': '0000000000', // chave de convidado gratuita
+        'apikey': '0000000000',
       },
       body: JSON.stringify({
         prompt: fullPrompt,
-        params: {
-          width: 512,
-          height: 896,
-          steps: 20,
-          sampler_name: 'k_euler',
-        },
+        params: { width: 512, height: 896, steps: 20 },
         models: ['Deliberate'],
       }),
     });
 
-    if (!generateResponse.ok) throw new Error('Falha ao iniciar geração');
-    const { id } = await generateResponse.json();
+    if (!generateRes.ok) throw new Error('Falha ao iniciar');
+    const { id } = await generateRes.json();
 
-    // Aguarda a imagem ficar pronta
-    for (let i = 0; i < 30; i++) {
-      await new Promise(r => setTimeout(r, 3000));
+    for (let i = 0; i < 20; i++) {
+      await new Promise(r => setTimeout(r, 4000));
+      const status = await fetch(`https://stablehorde.net/api/v2/generate/check/${id}`);
+      const statusData = await status.json();
 
-      const statusResponse = await fetch(`https://stablehorde.net/api/v2/generate/check/${id}`);
-      const status = await statusResponse.json();
-
-      if (status.done) {
-        const resultResponse = await fetch(`https://stablehorde.net/api/v2/generate/status/${id}`);
-        const result = await resultResponse.json();
-        const imageBase64 = result.generations?.[0]?.img;
-        if (imageBase64) return `data:image/webp;base64,${imageBase64}`;
-        throw new Error('Sem imagem no resultado');
+      if (statusData.done) {
+        const result = await fetch(`https://stablehorde.net/api/v2/generate/status/${id}`);
+        const resultData = await result.json();
+        const img = resultData.generations?.[0]?.img;
+        if (img) {
+          return new Response(JSON.stringify({ image: `data:image/webp;base64,${img}` }), {
+            headers: {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*'
+            }
+          });
+        }
       }
     }
-
-    throw new Error('Timeout ao gerar imagem');
-
-  } catch (error) {
-    console.error('Error:', error);
-    throw error;
+    throw new Error('Timeout');
+  } catch (err: any) {
+    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
   }
 }
