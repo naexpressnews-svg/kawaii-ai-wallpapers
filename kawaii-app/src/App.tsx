@@ -6,7 +6,6 @@ import { DEFAULT_WALLPAPERS } from './constants';
 import { generateKawaiiWallpaper } from './services/geminiService';
 import AdBanner from './components/AdBanner';
 
-// IDs AdMob
 const AD_UNIT_BANNER_TOP = 'ca-app-pub-1847479853575468/3656786624';
 const AD_UNIT_BANNER_BOTTOM = 'ca-app-pub-1847479853575468/5666337449';
 
@@ -19,6 +18,7 @@ export default function App() {
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -69,6 +69,7 @@ export default function App() {
     setIsGenerating(true);
     setError(null);
     setGeneratedImage(null);
+    setImageLoaded(false);
 
     try {
       const imageUrl = await generateKawaiiWallpaper(prompt);
@@ -117,18 +118,12 @@ export default function App() {
 
       {/* Main Content */}
       <main className="max-w-5xl mx-auto px-4 py-8">
-
-        {/* 🔴 Banner Topo */}
         <div className="mb-6">
           <AdBanner adUnitId={AD_UNIT_BANNER_TOP} />
         </div>
 
         {activeTab === 'generate' ? (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="max-w-2xl mx-auto"
-          >
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl mx-auto">
             <div className="bg-white rounded-3xl shadow-xl shadow-pink-100/50 p-8 border border-pastel-pink/20">
               <h2 className="text-3xl font-heading font-bold text-center mb-2 text-gray-800">Create Magic ✨</h2>
               <p className="text-center text-gray-500 mb-8">Describe your dream kawaii wallpaper and let AI bring it to life.</p>
@@ -140,55 +135,66 @@ export default function App() {
                   placeholder="e.g., A cute fluffy bunny sleeping on a pastel pink cloud surrounded by stars..."
                   className="w-full h-32 p-4 rounded-2xl bg-gray-50 border-2 border-pastel-pink/30 focus:border-pink-400 focus:ring-4 focus:ring-pink-100 outline-none transition-all resize-none text-gray-700"
                 />
-
                 <button
                   onClick={handleGenerate}
                   disabled={isGenerating || !prompt.trim()}
                   className="w-full py-4 rounded-2xl bg-gradient-to-r from-pink-400 to-purple-400 text-white font-bold text-lg shadow-lg shadow-pink-200 hover:shadow-pink-300 transform hover:-translate-y-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
                 >
                   {isGenerating ? (
-                    <><Loader2 className="w-6 h-6 animate-spin" />Generating Magic...</>
+                    <><Loader2 className="w-6 h-6 animate-spin" />A gerar magia...</>
                   ) : (
                     <><Sparkles className="w-6 h-6" />Generate Wallpaper</>
                   )}
                 </button>
-
                 {error && <p className="text-red-500 text-center text-sm mt-2">{error}</p>}
               </div>
 
-              {/* 🔴 Anúncio dentro do gerador */}
               <div className="mt-6">
                 <AdBanner adUnitId={AD_UNIT_BANNER_BOTTOM} />
               </div>
 
               {generatedImage && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="mt-8"
-                >
+                <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="mt-8">
                   <h3 className="text-lg font-bold text-gray-700 mb-4 text-center">Your Creation</h3>
-                  <div className="relative rounded-2xl overflow-hidden shadow-lg aspect-[9/16] max-w-sm mx-auto group">
-                    <img src={generatedImage} alt="Generated" className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
-                      <button
-                        onClick={() => handleDownload(generatedImage, `kawaii-wall-${Date.now()}.png`)}
-                        className="p-3 bg-white rounded-full text-gray-800 hover:scale-110 transition-transform"
-                      >
-                        <Download className="w-6 h-6" />
-                      </button>
-                    </div>
+                  <div className="relative rounded-2xl overflow-hidden shadow-lg aspect-[9/16] max-w-sm mx-auto group bg-pink-50">
+                    
+                    {/* Spinner enquanto carrega */}
+                    {!imageLoaded && (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10">
+                        <Loader2 className="w-10 h-10 text-pink-400 animate-spin" />
+                        <p className="text-pink-500 text-sm font-medium">A gerar magia... ✨</p>
+                        <p className="text-gray-400 text-xs">Pode demorar 20-30 segundos</p>
+                      </div>
+                    )}
+
+                    {/* Imagem */}
+                    <img
+                      src={generatedImage}
+                      alt="Generated"
+                      className="w-full h-full object-cover transition-opacity duration-500"
+                      style={{ opacity: imageLoaded ? 1 : 0 }}
+                      onLoad={() => setImageLoaded(true)}
+                      onError={() => setError('Falha ao carregar imagem. Tenta novamente.')}
+                    />
+
+                    {/* Botão download */}
+                    {imageLoaded && (
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
+                        <button
+                          onClick={() => handleDownload(generatedImage, `kawaii-wall-${Date.now()}.png`)}
+                          className="p-3 bg-white rounded-full text-gray-800 hover:scale-110 transition-transform"
+                        >
+                          <Download className="w-6 h-6" />
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               )}
             </div>
           </motion.div>
         ) : (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4"
-          >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
             {displayedWallpapers.length === 0 ? (
               <div className="col-span-full text-center py-20 text-gray-400">
                 <Heart className="w-16 h-16 mx-auto mb-4 opacity-20" />
@@ -223,8 +229,6 @@ export default function App() {
                       </div>
                     </div>
                   </motion.div>
-
-                  {/* 🔴 Anúncio a cada 4 wallpapers na galeria */}
                   {(index + 1) % 4 === 0 && (
                     <div className="break-inside-avoid col-span-2 my-2">
                       <AdBanner adUnitId={AD_UNIT_BANNER_BOTTOM} />
@@ -244,7 +248,7 @@ export default function App() {
         <NavItem icon={<Heart className="w-6 h-6" />} label="Favorites" isActive={activeTab === 'favorites'} onClick={() => setActiveTab('favorites')} />
       </nav>
 
-      {/* 🔴 Banner fixo acima da navegação */}
+      {/* Banner fixo acima da navegação */}
       <div className="fixed bottom-24 left-0 right-0 z-30 px-4">
         <AdBanner adUnitId={AD_UNIT_BANNER_BOTTOM} />
       </div>
