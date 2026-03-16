@@ -6,13 +6,16 @@ import { DEFAULT_WALLPAPERS } from './constants';
 import { generateKawaiiWallpaper } from './services/geminiService';
 import AdBanner from './components/AdBanner';
 
+// IDs AdMob
+const AD_UNIT_BANNER_TOP = 'ca-app-pub-1847479853575468/3656786624';
+const AD_UNIT_BANNER_BOTTOM = 'ca-app-pub-1847479853575468/5666337449';
+
 export default function App() {
   const [activeTab, setActiveTab] = useState<'gallery' | 'generate' | 'favorites'>('gallery');
   const [wallpapers, setWallpapers] = useState<Wallpaper[]>(DEFAULT_WALLPAPERS);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [selectedImage, setSelectedImage] = useState<Wallpaper | null>(null);
 
-  // Generator state
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
@@ -97,7 +100,7 @@ export default function App() {
     : wallpapers;
 
   return (
-    <div className="min-h-screen pb-24 font-sans">
+    <div className="min-h-screen pb-32 font-sans">
       {/* Header */}
       <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-pastel-pink/30 px-6 py-4">
         <div className="max-w-5xl mx-auto flex items-center justify-center">
@@ -114,8 +117,10 @@ export default function App() {
 
       {/* Main Content */}
       <main className="max-w-5xl mx-auto px-4 py-8">
-        <div className="mb-8">
-          <AdBanner />
+
+        {/* 🔴 Banner Topo */}
+        <div className="mb-6">
+          <AdBanner adUnitId={AD_UNIT_BANNER_TOP} />
         </div>
 
         {activeTab === 'generate' ? (
@@ -142,21 +147,18 @@ export default function App() {
                   className="w-full py-4 rounded-2xl bg-gradient-to-r from-pink-400 to-purple-400 text-white font-bold text-lg shadow-lg shadow-pink-200 hover:shadow-pink-300 transform hover:-translate-y-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
                 >
                   {isGenerating ? (
-                    <>
-                      <Loader2 className="w-6 h-6 animate-spin" />
-                      Generating Magic...
-                    </>
+                    <><Loader2 className="w-6 h-6 animate-spin" />Generating Magic...</>
                   ) : (
-                    <>
-                      <Sparkles className="w-6 h-6" />
-                      Generate Wallpaper
-                    </>
+                    <><Sparkles className="w-6 h-6" />Generate Wallpaper</>
                   )}
                 </button>
 
-                {error && (
-                  <p className="text-red-500 text-center text-sm mt-2">{error}</p>
-                )}
+                {error && <p className="text-red-500 text-center text-sm mt-2">{error}</p>}
+              </div>
+
+              {/* 🔴 Anúncio dentro do gerador */}
+              <div className="mt-6">
+                <AdBanner adUnitId={AD_UNIT_BANNER_BOTTOM} />
               </div>
 
               {generatedImage && (
@@ -194,33 +196,41 @@ export default function App() {
                 <p>Go find some cute wallpapers to save.</p>
               </div>
             ) : (
-              displayedWallpapers.map((wallpaper) => (
-                <motion.div
-                  layoutId={`wall-${wallpaper.id}`}
-                  key={wallpaper.id}
-                  className="relative group rounded-2xl overflow-hidden cursor-pointer break-inside-avoid shadow-sm hover:shadow-xl transition-all duration-300"
-                  onClick={() => setSelectedImage(wallpaper)}
-                >
-                  <img
-                    src={wallpaper.url}
-                    alt={wallpaper.prompt || wallpaper.category || 'Wallpaper'}
-                    className="w-full h-auto object-cover transform group-hover:scale-105 transition-transform duration-500"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-                    <div className="flex justify-between items-end">
-                      <span className="text-white text-sm font-medium bg-white/20 backdrop-blur-md px-2 py-1 rounded-lg">
-                        {wallpaper.category || 'Aesthetic'}
-                      </span>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); toggleFavorite(wallpaper.id); }}
-                        className="p-2 rounded-full bg-white/20 backdrop-blur-md hover:bg-white/40 transition-colors"
-                      >
-                        <Heart className={`w-5 h-5 ${favorites.includes(wallpaper.id) ? 'fill-pink-400 text-pink-400' : 'text-white'}`} />
-                      </button>
+              displayedWallpapers.map((wallpaper, index) => (
+                <React.Fragment key={wallpaper.id}>
+                  <motion.div
+                    layoutId={`wall-${wallpaper.id}`}
+                    className="relative group rounded-2xl overflow-hidden cursor-pointer break-inside-avoid shadow-sm hover:shadow-xl transition-all duration-300"
+                    onClick={() => setSelectedImage(wallpaper)}
+                  >
+                    <img
+                      src={wallpaper.url}
+                      alt={wallpaper.prompt || wallpaper.category || 'Wallpaper'}
+                      className="w-full h-auto object-cover transform group-hover:scale-105 transition-transform duration-500"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
+                      <div className="flex justify-between items-end">
+                        <span className="text-white text-sm font-medium bg-white/20 backdrop-blur-md px-2 py-1 rounded-lg">
+                          {wallpaper.category || 'Aesthetic'}
+                        </span>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); toggleFavorite(wallpaper.id); }}
+                          className="p-2 rounded-full bg-white/20 backdrop-blur-md hover:bg-white/40 transition-colors"
+                        >
+                          <Heart className={`w-5 h-5 ${favorites.includes(wallpaper.id) ? 'fill-pink-400 text-pink-400' : 'text-white'}`} />
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
+                  </motion.div>
+
+                  {/* 🔴 Anúncio a cada 4 wallpapers na galeria */}
+                  {(index + 1) % 4 === 0 && (
+                    <div className="break-inside-avoid col-span-2 my-2">
+                      <AdBanner adUnitId={AD_UNIT_BANNER_BOTTOM} />
+                    </div>
+                  )}
+                </React.Fragment>
               ))
             )}
           </motion.div>
@@ -233,6 +243,11 @@ export default function App() {
         <NavItem icon={<Sparkles className="w-6 h-6" />} label="Create" isActive={activeTab === 'generate'} onClick={() => setActiveTab('generate')} isPrimary />
         <NavItem icon={<Heart className="w-6 h-6" />} label="Favorites" isActive={activeTab === 'favorites'} onClick={() => setActiveTab('favorites')} />
       </nav>
+
+      {/* 🔴 Banner fixo acima da navegação */}
+      <div className="fixed bottom-24 left-0 right-0 z-30 px-4">
+        <AdBanner adUnitId={AD_UNIT_BANNER_BOTTOM} />
+      </div>
 
       {/* Fullscreen Modal */}
       <AnimatePresence>
