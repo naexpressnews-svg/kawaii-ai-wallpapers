@@ -8,25 +8,20 @@ export async function generateKawaiiWallpaper(prompt: string): Promise<string> {
     }
     const ai = new GoogleGenAI({ apiKey });
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash-preview-image-generation',
-      contents: {
-        parts: [
-          {
-            text: `Kawaii aesthetic wallpaper, ${prompt}, pastel colors, cute, dreamy, soft lighting, high quality, 4k resolution, mobile wallpaper aspect ratio`,
-          },
-        ],
-      },
+    const response = await ai.models.generateImages({
+      model: 'imagen-3.0-generate-002',
+      prompt: `Kawaii aesthetic wallpaper, ${prompt}, pastel colors, cute, dreamy, soft lighting, high quality, 4k resolution, mobile wallpaper portrait`,
       config: {
-        responseModalities: ['TEXT', 'IMAGE'],
+        numberOfImages: 1,
+        aspectRatio: '9:16',
       },
     });
 
-    for (const part of response.candidates?.[0]?.content?.parts || []) {
-      if (part.inlineData) {
-        return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
-      }
+    const image = response.generatedImages?.[0];
+    if (image?.image?.imageBytes) {
+      return `data:image/png;base64,${image.image.imageBytes}`;
     }
+
     throw new Error('No image data found in response');
   } catch (error) {
     console.error('Error generating wallpaper:', error);
