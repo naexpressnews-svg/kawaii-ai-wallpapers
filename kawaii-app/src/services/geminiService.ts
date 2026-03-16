@@ -23,8 +23,13 @@ export async function generateKawaiiWallpaper(prompt: string): Promise<string> {
     }
 
     throw new Error('No image data found in response');
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error generating wallpaper:', error);
-    throw error;
+    // Só redireciona para API Key se for mesmo erro de chave
+    if (error?.message === 'NO_API_KEY' || error?.status === 401 || error?.status === 403) {
+      throw new Error('NO_API_KEY');
+    }
+    // Outros erros mostram mensagem normal
+    throw new Error(error?.message || 'Falha ao gerar imagem. Verifica se tens billing ativado no Google Cloud.');
   }
 }
